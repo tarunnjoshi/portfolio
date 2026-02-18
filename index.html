@@ -978,20 +978,20 @@
           <div class="form-row">
             <div class="fg">
               <label for="fname">Your Name</label>
-              <input type="text" id="fname" placeholder="John Doe" required />
+              <input type="text" id="fname" name="name" placeholder="John Doe" required />
             </div>
             <div class="fg">
               <label for="femail">Email Address</label>
-              <input type="email" id="femail" placeholder="john@example.com" required />
+              <input type="email" id="femail" name="email" placeholder="john@example.com" required />
             </div>
           </div>
           <div class="fg">
             <label for="fsubj">Subject</label>
-            <input type="text" id="fsubj" placeholder="Project Discussion / Job Opportunity" required />
+            <input type="text" id="fsubj" name="subject" placeholder="Project Discussion / Job Opportunity" required />
           </div>
           <div class="fg">
             <label for="fmsg">Message</label>
-            <textarea id="fmsg" placeholder="Tell me about your project or opportunity…" required></textarea>
+            <textarea id="fmsg" name="message" placeholder="Tell me about your project or opportunity…" required></textarea>
           </div>
           <button type="submit" class="btn btn-primary form-submit">🚀 Send Message</button>
         </form>
@@ -1173,17 +1173,36 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),3800);
 }
 
-/* ── CONTACT FORM ── */
-document.getElementById('contactForm').addEventListener('submit', function(e){
+/* ── CONTACT FORM (Web3Forms) ── */
+document.getElementById('contactForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const btn = this.querySelector('button[type="submit"]');
-  btn.disabled=true; btn.textContent='⏳ Sending…';
-  // Swap for EmailJS / Formspree / backend call in production
-  setTimeout(()=>{
-    toast("✅ Message sent! I'll get back to you soon.");
-    this.reset();
-    btn.disabled=false; btn.innerHTML='🚀 Send Message';
-  },1400);
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending…';
+
+  const data = new FormData(this);
+
+  try {
+    const res = await fetch('https://formspree.io/f/mpqjlzrk', {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    const json = await res.json();
+
+    if (res.ok) {
+      toast("✅ Message sent! I'll get back to you soon.");
+      this.reset();
+    } else {
+      toast("❌ Something went wrong. Please email me directly.");
+    }
+  } catch(err) {
+    toast("❌ Network error. Please email me directly.");
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🚀 Send Message';
 });
 
 /* ── SMOOTH SCROLL for anchor links ── */
